@@ -55,8 +55,6 @@ export const useForm = <
 
     if (config.validate) {
       const errors = config.validate(formValues);
-      // eslint-disable-next-line no-console
-      console.log({ errors });
       for (const fieldName in errors) {
         if (errors[fieldName]) {
           setFormErrors(errors);
@@ -84,6 +82,7 @@ export const useForm = <
       onChange: handleInputChange,
       disabled: formStatus === 'submitting',
       error: formErrors[fieldName],
+      'aria-invalid': Boolean(formErrors[fieldName]),
     };
   }
 

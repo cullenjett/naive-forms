@@ -140,3 +140,36 @@ export function Select(props: SelectProps) {
     </div>
   );
 }
+
+export function FileInput(props: InputProps) {
+  // TODO: We need to ignore props.value for file inputs,
+  // but I don't like that the custom component has to know that.
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { label, error, value, ...inputProps } = props;
+  const id = inputProps.id || inputProps.name;
+
+  return (
+    <div>
+      {label && (
+        <label
+          htmlFor={id}
+          className={clsx(styles.label, {
+            [styles.labelError]: error,
+          })}
+        >
+          {label}
+        </label>
+      )}
+      <input
+        className={clsx(styles.input, {
+          [styles.inputError]: error,
+        })}
+        type="file"
+        {...inputProps}
+        id={id}
+      />
+      {error && <p className={styles.error}>{error}</p>}
+    </div>
+  );
+}

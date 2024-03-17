@@ -1,6 +1,6 @@
 import { useForm } from './use-form';
 import { required, validate } from './validation';
-import { Checkbox, Input, RadioGroup, Select } from './fields';
+import { Checkbox, FileInput, Input, RadioGroup, Select } from './fields';
 import { useState } from 'react';
 
 type Fields = {
@@ -16,7 +16,7 @@ type Fields = {
 export function App() {
   const [submission, setSubmission] = useState<Partial<Fields> | null>(null);
 
-  const { handleSubmit, getInputProps } = useForm<Fields>({
+  const { handleSubmit, getInputProps, isSubmitting } = useForm<Fields>({
     initialValues: {
       firstName: 'Cullen',
       isLegal: true,
@@ -38,11 +38,12 @@ export function App() {
         setTimeout(resolve, 1000);
       });
       setSubmission(formValues);
-      return {
-        firstName: 'No bitch!',
-      };
     },
   });
+
+  // TODO: file inputs can't be controlled
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { value, ...docInputProps } = getInputProps('doc');
 
   return (
     <main>
@@ -68,10 +69,10 @@ export function App() {
           <option value="heaven">Heaven</option>
           <option value="hell">Hell</option>
         </Select>
-        <div>
-          <input type="file" {...getInputProps('doc')} />
-        </div>
-        <button type="submit">Submit</button>
+        <FileInput label="Upload a document" {...getInputProps('doc')} />
+        <button type="submit" disabled={isSubmitting}>
+          Submit
+        </button>
       </form>
 
       {submission && (
