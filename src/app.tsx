@@ -14,7 +14,9 @@ type Fields = {
 };
 
 export function App() {
-  const [submission, setSubmission] = useState<Partial<Fields> | null>(null);
+  const [lastSubmission, setLastSubmission] = useState<Partial<Fields> | null>(
+    null
+  );
 
   const { handleSubmit, getInputProps, isSubmitting } = useForm<Fields>({
     initialValues: {
@@ -32,25 +34,32 @@ export function App() {
       };
     },
     onSubmit: async (formValues) => {
-      setSubmission(null);
+      setLastSubmission(null);
       console.log(formValues);
       await new Promise((resolve) => {
         setTimeout(resolve, 1000);
       });
-      setSubmission(formValues);
+      setLastSubmission(formValues);
     },
   });
-
-  // TODO: file inputs can't be controlled
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { value, ...docInputProps } = getInputProps('doc');
 
   return (
     <main>
       <form onSubmit={handleSubmit}>
         <Input label="First name" {...getInputProps('firstName')} />
         <Input label="Last name" {...getInputProps('lastName')} />
-        <Input label="SSN" {...getInputProps('ssn')} />
+        <Input
+          label="SSN"
+          {...getInputProps('ssn', {
+            format: (value) => {
+              return value
+                .replace(/\D/g, '')
+                .replace(/^(\d{3})(\d{1,2})/, '$1-$2')
+                .replace(/^(\d{3})-(\d{2})(.+)/, '$1-$2-$3')
+                .substring(0, 11);
+            },
+          })}
+        />
         <RadioGroup
           label="Favorite color"
           options={[
@@ -75,9 +84,9 @@ export function App() {
         </button>
       </form>
 
-      {submission && (
+      {lastSubmission && (
         <code>
-          <pre>{JSON.stringify(submission, null, 2)}</pre>
+          <pre>{JSON.stringify(lastSubmission, null, 2)}</pre>
         </code>
       )}
     </main>

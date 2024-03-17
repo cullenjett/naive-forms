@@ -10,6 +10,10 @@ type UseFormConfig<FormValues> = {
   initialValues?: Partial<FormValues>;
 };
 
+type GetInputPropsOptions<FieldType> = {
+  format: (value: FieldType) => FieldType;
+};
+
 export const useForm = <
   FormValues extends Record<string, unknown> = Record<string, unknown>,
 >(
@@ -26,7 +30,10 @@ export const useForm = <
   function handleInputChange(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
+    // TODO: type this
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    format?: any
   ) {
     let value: string | boolean | FileList | null;
 
@@ -36,6 +43,11 @@ export const useForm = <
       value = e.target.checked;
     } else {
       value = e.target.value;
+    }
+
+    if (format) {
+      console.log('format:', value);
+      value = format(value);
     }
 
     setFormValues((prev) => {
@@ -74,12 +86,21 @@ export const useForm = <
     setFormStatus('idle');
   }
 
-  function getInputProps(fieldName: keyof FormValues) {
+  function getInputProps<FieldName extends keyof FormValues>(
+    fieldName: FieldName,
+    options?: GetInputPropsOptions<FormValues[FieldName]>
+  ) {
     return {
       id: fieldName,
       name: fieldName,
       value: String(formValues[fieldName] || ''),
-      onChange: handleInputChange,
+      onChange: (
+        e: React.ChangeEvent<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+      ) => {
+        return handleInputChange(e, options?.format);
+      },
       disabled: formStatus === 'submitting',
       error: formErrors[fieldName],
       'aria-invalid': Boolean(formErrors[fieldName]),
