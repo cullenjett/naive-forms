@@ -9,6 +9,10 @@ interface InputProps extends ComponentProps<'input'> {
   error?: ReactNode;
 }
 
+interface RadioGroupProps extends InputProps {
+  options: Array<{ label: string; value: string }>;
+}
+
 interface SelectProps extends ComponentProps<'select'> {
   name: string;
   label?: ReactNode;
@@ -73,9 +77,7 @@ export function Checkbox(props: InputProps) {
   );
 }
 
-export function RadioGroup(
-  props: InputProps & { options: Array<{ label: string; value: string }> }
-) {
+export function RadioGroup(props: RadioGroupProps) {
   const { label, options, error, ...inputProps } = props;
 
   return (
