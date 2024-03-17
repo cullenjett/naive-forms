@@ -50,6 +50,7 @@ export function App() {
         <Input label="Last name" {...getInputProps('lastName')} />
         <Input
           label="SSN"
+          placeholder="999-99-9999"
           {...getInputProps('ssn', {
             format: (value) => {
               return value
@@ -65,6 +66,7 @@ export function App() {
           options={[
             { label: 'Red', value: 'red' },
             { label: 'Blue', value: 'blue' },
+            { label: 'Green', value: 'green' },
           ]}
           {...getInputProps('favoriteColor')}
         />
@@ -84,11 +86,16 @@ export function App() {
         </button>
       </form>
 
-      {lastSubmission && (
+      <aside>
+        <p>Last submission:</p>
         <code>
-          <pre>{JSON.stringify(lastSubmission, null, 2)}</pre>
+          {isSubmitting ? (
+            'Submitting...'
+          ) : lastSubmission ? (
+            <pre>{JSON.stringify(lastSubmission, null, 2)}</pre>
+          ) : null}
         </code>
-      )}
+      </aside>
     </main>
   );
 }

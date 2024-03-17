@@ -25,14 +25,14 @@ body {
 }
 
 main {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 24rem;
   gap: 4rem;
 }
 
 form {
   display: grid;
   gap: 1.6rem;
-  width: 36rem;
 }
 
 a {
@@ -53,13 +53,15 @@ button {
   font-family: inherit;
   color: white;
   background-color: black;
-  cursor: pointer;
-  transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: cornflowerblue;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+button:disabled {
+  background-color: darkslategray;
+  cursor: not-allowed;
 }
