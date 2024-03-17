@@ -1,5 +1,9 @@
 import { useState } from 'react';
 
+type InputChangeEvent = React.ChangeEvent<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+>;
+
 type UseFormConfig<FormValues> = {
   validate?: (
     formValues: Partial<FormValues>
@@ -11,7 +15,8 @@ type UseFormConfig<FormValues> = {
 };
 
 type GetInputPropsOptions<FieldType> = {
-  format: (value: FieldType) => FieldType;
+  onChange?: (e: InputChangeEvent) => void;
+  format?: (value: FieldType) => FieldType;
 };
 
 export const useForm = <
@@ -28,9 +33,7 @@ export const useForm = <
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting'>('idle');
 
   function handleInputChange(
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    e: InputChangeEvent,
     // TODO: type this
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     format?: any
@@ -46,7 +49,6 @@ export const useForm = <
     }
 
     if (format) {
-      console.log('format:', value);
       value = format(value);
     }
 
@@ -94,12 +96,15 @@ export const useForm = <
       id: fieldName,
       name: fieldName,
       value: String(formValues[fieldName] || ''),
-      onChange: (
-        e: React.ChangeEvent<
-          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >
-      ) => {
-        return handleInputChange(e, options?.format);
+      onChange: (e: InputChangeEvent) => {
+        handleInputChange(e, options?.format);
+
+        // Hack in a sync update so e.target.value reflects the result of handleInputChange
+        if (options?.onChange) {
+          setTimeout(() => {
+            options?.onChange?.(e);
+          });
+        }
       },
       disabled: formStatus === 'submitting',
       error: formErrors[fieldName],

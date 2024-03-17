@@ -52,6 +52,9 @@ export function App() {
           label="SSN"
           placeholder="999-99-9999"
           {...getInputProps('ssn', {
+            onChange: (e) => {
+              console.log('SSN input onChange:', e.target.value);
+            },
             format: (value) => {
               return value
                 .replace(/\D/g, '')
