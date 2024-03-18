@@ -71,7 +71,7 @@ export const useForm = <
       const errors = config.validate(formValues);
       for (const fieldName in errors) {
         if (errors[fieldName]) {
-          setFormErrors(errors);
+          handleError(errors);
           return;
         }
       }
@@ -82,10 +82,25 @@ export const useForm = <
 
     const errors = await config.onSubmit?.(formValues);
     if (errors) {
-      setFormErrors(errors);
+      handleError(errors);
     }
 
     setFormStatus('idle');
+  }
+
+  function handleError(errors: Partial<Record<keyof FormValues, string>>) {
+    setFormErrors(errors);
+    setTimeout(() => {
+      const errorField = document.querySelector<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >('[aria-invalid="true"]');
+      if (errorField) {
+        errorField.focus();
+        errorField.scrollIntoView({
+          block: 'end',
+        });
+      }
+    }, 0);
   }
 
   function getInputProps<FieldName extends keyof FormValues>(
@@ -103,7 +118,7 @@ export const useForm = <
         if (options?.onChange) {
           setTimeout(() => {
             options?.onChange?.(e);
-          });
+          }, 0);
         }
       },
       disabled: formStatus === 'submitting',
