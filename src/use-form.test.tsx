@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { useForm } from './use-form';
+import { Input } from './fields';
+import { required, validate } from './validation';
 
 type Fields = {
   name: string;
@@ -42,17 +44,17 @@ describe('useForm()', () => {
   });
 
   it('updates text input values on change', () => {
-    const onSubmitMock = vi.fn().mockResolvedValue(null);
     const TestForm = () => {
-      const { handleSubmit, getInputProps, formValues } = useForm<Fields>({
-        onSubmit: onSubmitMock,
-      });
+      const { handleSubmit, getInputProps, formValues } = useForm<Fields>({});
 
       return (
         <>
           <form onSubmit={handleSubmit}>
-            <label htmlFor="email">Email address</label>
-            <input type="email" {...getInputProps('email')} />
+            <Input
+              label="Email address"
+              type="email"
+              {...getInputProps('email')}
+            />
           </form>
 
           <p data-testid="email-output">{formValues.email}</p>
@@ -73,5 +75,46 @@ describe('useForm()', () => {
     expect(screen.getByTestId('email-output').textContent).toEqual(
       'test@example.com'
     );
+  });
+
+  it('prevents submit on validation error', () => {
+    const onSubmitMock = vi.fn().mockResolvedValue(null);
+    const TestForm = () => {
+      const { handleSubmit, getInputProps, formValues } = useForm<Fields>({
+        onSubmit: onSubmitMock,
+        validate: (formValues) => {
+          return {
+            email: validate(required())(formValues.email),
+          };
+        },
+      });
+
+      return (
+        <>
+          <form onSubmit={handleSubmit}>
+            <Input
+              label="Email address"
+              type="email"
+              {...getInputProps('email')}
+            />
+            <button type="submit">Submit</button>
+          </form>
+
+          <p data-testid="email-output">{formValues.email}</p>
+        </>
+      );
+    };
+
+    render(<TestForm />);
+
+    const emailInput = screen.getByLabelText<HTMLInputElement>('Email address');
+    const submitButton = screen.getByRole('button', { name: 'Submit' });
+
+    fireEvent.click(submitButton);
+
+    expect(emailInput.getAttribute('aria-invalid')).toEqual('true');
+
+    const errorMessage = screen.getByText('Required');
+    expect(errorMessage).toBeInTheDocument(); // TODO: make error messages accessible
   });
 });
